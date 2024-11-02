@@ -8,27 +8,35 @@
 #include "player.h"
 #include "map.h"
 
+//DEBUG VARS
+float testAngle = 0;
+float testDist = 0;
+
 const float PI = 3.141592653589793238462643383279502884197169399375105820974944;
 
 const int windowHight = 60; //size of the hight of the window
-const int windowWidth = windowHight * 2; //size of the width of the window
+const int windowWidth = windowHight * 3; //size of the width of the window
 const int windowSize = windowHight * windowWidth; //total size of the window. made to be 12:9
 const int FOV = 90; //feild of view
-const int ViewDistance = 4;
+const int ViewDistance = 10;
 
-char getWallChar(float distance)
+short getWallChar(float distance)
 {
-	if (distance > 1)
+	if (distance <= 2.5f)
 	{
-		return 'X';
+		return 0x2588;
 	}
-	else if (distance > 2)
+	else if (distance <= 5)
 	{
-		return 'x';
+		return 0x2593;
+	}
+	else if(distance <= 7.5f)
+	{
+		return 0x2592;
 	}
 	else
 	{
-		return'#';
+		return 0x2591;
 	}
 }
 
@@ -65,7 +73,7 @@ int main()
 		//Cast Rays
 		for (float i = 0; i < windowWidth; i++) //for each pixel in the width of the screen
 		{
-			float distance = 4.0f;
+			float distance = ViewDistance;
 			int blankSurrounds = 0; //The ammount of space characters to leave above and below the wall tile
 
 			float rayAngle = (player1.GetPlayerRot() - FOV / 2) + ((i/windowWidth) * FOV); //make a ray starting at half of the FOV backwards from the player's angle
@@ -77,13 +85,21 @@ int main()
 			{
 				if (map::CheckWithRay(player1.GetPlayerXPos(), player1.GetPlayerYPos(), rayAngleRad, j)) //if a wall is found by the ray
 				{
-					distance = j - ((rayAngle < 135 && rayAngle > 45) || (rayAngle < 315 && rayAngle > 225) ? (player1.GetPlayerYPos() - (int)player1.GetPlayerYPos()) : (player1.GetPlayerXPos() - (int)player1.GetPlayerXPos())); //GIANT statment to say the distance is j - the offset of the player. if the angle is between 45 and 135 or 225 and 315 then use the Y offset. otherwise use the X offset
+					distance = j - ((cosf(rayAngleRad) * (player1.GetPlayerYPos() - (int)player1.GetPlayerYPos())) + (sinf(rayAngleRad) * (player1.GetPlayerXPos() - (int)player1.GetPlayerXPos()))); //GIANT statment to say the distance is j - the offset of the player.
+
+					//DEBUG INFO
+					if (rayAngle == player1.GetPlayerRot())
+					{
+						testAngle = rayAngleRad;
+						testDist = j;
+					}
+
 					break;
 				}
 			}
 
 			//Write wall to screen
-			blankSurrounds = (distance < 4.0f ? (distance - 1) * (windowHight/20) : windowHight);
+			blankSurrounds = (distance < ViewDistance ? (distance) * (windowHight/20) : windowHight);
 
 			for (int j = 0; j < windowHight; j++)
 			{
@@ -106,11 +122,13 @@ int main()
 			if (GetAsyncKeyState((unsigned short)'W') & 0x8000)
 			{
 				player1.SetPlayerXPos(player1.GetPlayerXPos() + (sinf(playerRotRad) * frameSeconds));
+				player1.SetPlayerYPos(player1.GetPlayerYPos() + (cosf(playerRotRad) * frameSeconds));
 			}	
 
 			if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
 			{
 				player1.SetPlayerXPos(player1.GetPlayerXPos() - (sinf(playerRotRad) * frameSeconds));
+				player1.SetPlayerYPos(player1.GetPlayerYPos() - (cosf(playerRotRad) * frameSeconds));
 			}
 		}
 
@@ -126,7 +144,7 @@ int main()
 
 		i++;
 
-		for (char ch : std::to_string(player1.GetPlayerXPos() - (int)player1.GetPlayerXPos()))
+		for (char ch : std::to_string(testDist - sinf(testAngle) * (player1.GetPlayerXPos() - (int)player1.GetPlayerXPos())))
 		{
 			screen[i] = ch;
 			i++;
