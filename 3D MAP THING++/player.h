@@ -10,6 +10,9 @@ public:
 	float GetPlayerXPos();
 	float GetPlayerYPos();
 	float GetPlayerRot();
+
+	void SetPlayerXPos(float value);
+	void SetPlayerYPos(float value);
 	void SetPlayerRot(float value);
 	player();
 };

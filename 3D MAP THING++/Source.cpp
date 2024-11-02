@@ -4,6 +4,7 @@
 #include <numbers>
 #include <chrono>
 #include <limits>
+#include <string>
 #include "player.h"
 #include "map.h"
 
@@ -14,6 +15,22 @@ const int windowWidth = windowHight * 2; //size of the width of the window
 const int windowSize = windowHight * windowWidth; //total size of the window. made to be 12:9
 const int FOV = 90; //feild of view
 const int ViewDistance = 4;
+
+char getWallChar(float distance)
+{
+	if (distance > 1)
+	{
+		return 'X';
+	}
+	else if (distance > 2)
+	{
+		return 'x';
+	}
+	else
+	{
+		return'#';
+	}
+}
 
 int main()
 {
@@ -38,10 +55,14 @@ int main()
 
 	while (true)
 	{
+		//Determining FPS
 		time1 = std::chrono::system_clock::now();
 		std::chrono::duration<float> elapsedTime = time1 - time2;
 		time2 = time1;
 
+		float frameSeconds = (float)elapsedTime.count() / 60;
+
+		//Cast Rays
 		for (float i = 0; i < windowWidth; i++) //for each pixel in the width of the screen
 		{
 			float distance = 4.0f;
@@ -50,6 +71,7 @@ int main()
 			float rayAngle = (player1.GetPlayerRot() - FOV / 2) + ((i/windowWidth) * FOV); //make a ray starting at half of the FOV backwards from the player's angle
 
 			float rayAngleRad = (rayAngle < 0 ? rayAngle + 360 : rayAngle) * (PI / 180); //convert ray angle to radians
+			float playerRotRad = player1.GetPlayerRot() * (PI / 180);
 
 			for (int j = 0; j < ViewDistance; j++) //search for a wall one block at a time
 			{
@@ -60,17 +82,54 @@ int main()
 				}
 			}
 
-			blankSurrounds = (distance < 4.0f ? distance * (windowHight/20) : windowHight);
+			//Write wall to screen
+			blankSurrounds = (distance < 4.0f ? (distance - 1) * (windowHight/20) : windowHight);
 
 			for (int j = 0; j < windowHight; j++)
 			{
-				screen[(int)i + (j * windowWidth)] = (j < blankSurrounds || windowHight - j < blankSurrounds ? ' ' : '#');
+				screen[(int)i + (j * windowWidth)] = (j < blankSurrounds || windowHight - j < blankSurrounds ? ' ' : getWallChar(distance));
 			}
+
+
+			//INPUTS
 
 			if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
 			{
-				player1.SetPlayerRot((player1.GetPlayerRot() < 0 ? 355: player1.GetPlayerRot() - 0.5f * (float)elapsedTime.count()));
+				player1.SetPlayerRot((player1.GetPlayerRot() < 0 ? 360: player1.GetPlayerRot() - 30.0f * frameSeconds));
 			}
+
+			if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
+			{
+				player1.SetPlayerRot((player1.GetPlayerRot() > 360 ? 0 : player1.GetPlayerRot() + 30.0f * frameSeconds));
+			}
+
+			if (GetAsyncKeyState((unsigned short)'W') & 0x8000)
+			{
+				player1.SetPlayerXPos(player1.GetPlayerXPos() + (sinf(playerRotRad) * frameSeconds));
+			}	
+
+			if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
+			{
+				player1.SetPlayerXPos(player1.GetPlayerXPos() - (sinf(playerRotRad) * frameSeconds));
+			}
+		}
+
+		//DEBUG
+		int i = 0;
+		float playerRotRad = player1.GetPlayerRot() * (PI / 180);
+
+		for (char ch : std::to_string(player1.GetPlayerXPos()))
+		{
+			screen[i] = ch;
+			i++;
+		}
+
+		i++;
+
+		for (char ch : std::to_string(player1.GetPlayerXPos() - (int)player1.GetPlayerXPos()))
+		{
+			screen[i] = ch;
+			i++;
 		}
 
 		WriteConsoleOutputCharacter(handle, screen, windowSize, { 0,0 }, &fluff);
