@@ -40,6 +40,32 @@ short getWallChar(float distance)
 	}
 }
 
+wchar_t getBlankChar(int height)
+{
+	if (height >= windowHight * 3 / 4)
+	{
+		if (height <= windowHight * 3 / 4 + ((windowHight - windowHight * 3 / 4) * 1 / 3))
+		{
+			return '.';
+			//return (short)0x00B7;
+		}
+		else if (height <= windowHight * 3 / 4 + ((windowHight - windowHight * 3 / 4) * 2 / 3))
+		{
+			return 'o';
+			//return (short)0x25CF;
+		}
+		else
+		{
+			return'O';
+			//return (short)0x25EF;
+		}
+	}
+	else
+	{
+		return ' ';
+	}
+}
+
 int main()
 {
 	//Windows Console Configuration @_@
@@ -85,25 +111,30 @@ int main()
 			{
 				if (map::CheckWithRay(player1.GetPlayerXPos(), player1.GetPlayerYPos(), rayAngleRad, j)) //if a wall is found by the ray
 				{
-					distance = j - ((cosf(rayAngleRad) * (player1.GetPlayerYPos() - (int)player1.GetPlayerYPos())) + (sinf(rayAngleRad) * (player1.GetPlayerXPos() - (int)player1.GetPlayerXPos()))); //GIANT statment to say the distance is j - the offset of the player.
+					distance = j - std::abs((cosf(rayAngleRad) * (player1.GetPlayerYPos() - (int)player1.GetPlayerYPos())) - (sinf(rayAngleRad) * (player1.GetPlayerXPos() - (int)player1.GetPlayerXPos()))); //GIANT statment to say the distance is j - the offset of the player.
 
 					//DEBUG INFO
 					if (rayAngle == player1.GetPlayerRot())
 					{
 						testAngle = rayAngleRad;
-						testDist = j;
+						testDist = distance;
 					}
 
 					break;
 				}
 			}
+			//Write floor to screen
+			for (int j = windowHight * 3/4; j < windowHight; j++)
+			{
+				screen[(int)i + (j * windowWidth)] = (j <= windowHight * 3 / 4 * 1/3 ? (short)0x00B7 : j <= windowHight * 3 / 4 * 2 / 3 ? (short)0x25CF: 'O'); //write each character in the ray's column
+			}
 
 			//Write wall to screen
-			blankSurrounds = (distance < ViewDistance ? (distance) * (windowHight/20) : windowHight);
+			blankSurrounds = (distance < ViewDistance ? (distance) * (windowHight/20) : windowHight); //ammount of blank spaces above and below wall
 
 			for (int j = 0; j < windowHight; j++)
 			{
-				screen[(int)i + (j * windowWidth)] = (j < blankSurrounds || windowHight - j < blankSurrounds ? ' ' : getWallChar(distance));
+				screen[(int)i + (j * windowWidth)] = (j < blankSurrounds || windowHight - j < blankSurrounds ? getBlankChar(j) : getWallChar(distance)); //write each character in the ray's column
 			}
 
 
@@ -144,7 +175,7 @@ int main()
 
 		i++;
 
-		for (char ch : std::to_string(testDist - sinf(testAngle) * (player1.GetPlayerXPos() - (int)player1.GetPlayerXPos())))
+		for (char ch : std::to_string(testDist))
 		{
 			screen[i] = ch;
 			i++;
