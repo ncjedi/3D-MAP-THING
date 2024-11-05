@@ -111,7 +111,7 @@ int main()
 			{
 				if (map::CheckWithRay(player1.GetPlayerXPos(), player1.GetPlayerYPos(), rayAngleRad, j)) //if a wall is found by the ray
 				{
-					distance = j - std::abs((cosf(rayAngleRad) * (player1.GetPlayerYPos() - (int)player1.GetPlayerYPos())) - (sinf(rayAngleRad) * (player1.GetPlayerXPos() - (int)player1.GetPlayerXPos()))); //GIANT statment to say the distance is j - the offset of the player.
+					distance = j - sqrt(pow(cosf(rayAngleRad) * (player1.GetPlayerYPos() - (int)(player1.GetPlayerYPos())), 2) + pow(sinf(rayAngleRad) * (player1.GetPlayerXPos() - (int)(player1.GetPlayerXPos())), 2));// - sqrt(pow((player1.GetPlayerYPos() + cosf(rayAngleRad) * j) - (int)(player1.GetPlayerYPos() + cosf(rayAngleRad) * j), 2) + pow((player1.GetPlayerXPos() + sinf(rayAngleRad) * j) - (int)(player1.GetPlayerXPos() + sinf(rayAngleRad) * j), 2)); //GIANT statment to say the distance is j - the offset of the player - the offset of the ray into the wall.
 
 					//DEBUG INFO
 					if (rayAngle == player1.GetPlayerRot())
