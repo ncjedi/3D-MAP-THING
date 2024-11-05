@@ -107,31 +107,10 @@ int main()
 			float rayAngleRad = (rayAngle < 0 ? rayAngle + 360 : rayAngle) * (PI / 180); //convert ray angle to radians
 			float playerRotRad = player1.GetPlayerRot() * (PI / 180);
 
-			/*for (int j = 0; j < ViewDistance; j++) //search for a wall one block at a time
-			{
-				if (map::CheckWithRay(player1.GetPlayerXPos(), player1.GetPlayerYPos(), rayAngleRad, j)) //if a wall is found by the ray
-				{
-					distance = j - std::abs((cosf(rayAngleRad) * (player1.GetPlayerYPos() - (int)player1.GetPlayerYPos())) - (sinf(rayAngleRad) * (player1.GetPlayerXPos() - (int)player1.GetPlayerXPos()))); //GIANT statment to say the distance is j - the offset of the player.
-
-					//DEBUG INFO
-					if (rayAngle == player1.GetPlayerRot())
-					{
-						testAngle = rayAngleRad;
-						testDist = distance;
-					}
-
-					break;
-				}
-			} for loop replaced with traceback function*/
-
 			distance = map::CheckWithRayAndTraceBack(player1.GetPlayerXPos(), player1.GetPlayerYPos(), rayAngleRad, ViewDistance);
-			
-			//DEBUG INFO
-			if (rayAngle == player1.GetPlayerRot())
-			{
-				testAngle = rayAngleRad;
-				testDist = distance;
-			}
+
+			float rayX = player1.GetPlayerXPos() + (sinf(rayAngleRad) * distance);
+			float rayY = player1.GetPlayerYPos() + (cosf(rayAngleRad) * distance);
 
 			//Write floor to screen
 			for (int j = windowHight * 3/4; j < windowHight; j++)
@@ -147,6 +126,16 @@ int main()
 				screen[(int)i + (j * windowWidth)] = (j < blankSurrounds || windowHight - j < blankSurrounds ? getBlankChar(j) : getWallChar(distance)); //write each character in the ray's column
 			}
 
+			if ((rayX - (int)rayX <= 0.1 || rayX - (int)rayX >= 0.9) && (rayY - (int)rayY <= 0.1 || rayY - (int)rayY >= 0.9))
+			{
+				for (int j = 0; j < windowHight; j++)
+				{
+					if (screen[(int)i + (j * windowWidth)] == (short)0x2592 || screen[(int)i + (j * windowWidth)] == (short)0x2593 || screen[(int)i + (j * windowWidth)] == (short)0x2588)
+					{
+						screen[(int)i + (j * windowWidth)] = (short)0x2591;
+					}
+				}
+			}
 
 			//INPUTS
 
@@ -175,17 +164,8 @@ int main()
 
 		//DEBUG
 		int i = 0;
-		float playerRotRad = player1.GetPlayerRot() * (PI / 180);
 
 		for (char ch : std::to_string(player1.GetPlayerXPos()))
-		{
-			screen[i] = ch;
-			i++;
-		}
-
-		i++;
-
-		for (char ch : std::to_string(testDist))
 		{
 			screen[i] = ch;
 			i++;
