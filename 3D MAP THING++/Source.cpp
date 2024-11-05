@@ -107,7 +107,7 @@ int main()
 			float rayAngleRad = (rayAngle < 0 ? rayAngle + 360 : rayAngle) * (PI / 180); //convert ray angle to radians
 			float playerRotRad = player1.GetPlayerRot() * (PI / 180);
 
-			for (int j = 0; j < ViewDistance; j++) //search for a wall one block at a time
+			/*for (int j = 0; j < ViewDistance; j++) //search for a wall one block at a time
 			{
 				if (map::CheckWithRay(player1.GetPlayerXPos(), player1.GetPlayerYPos(), rayAngleRad, j)) //if a wall is found by the ray
 				{
@@ -122,7 +122,17 @@ int main()
 
 					break;
 				}
+			} for loop replaced with traceback function*/
+
+			distance = map::CheckWithRayAndTraceBack(player1.GetPlayerXPos(), player1.GetPlayerYPos(), rayAngleRad, ViewDistance);
+			
+			//DEBUG INFO
+			if (rayAngle == player1.GetPlayerRot())
+			{
+				testAngle = rayAngleRad;
+				testDist = distance;
 			}
+
 			//Write floor to screen
 			for (int j = windowHight * 3/4; j < windowHight; j++)
 			{

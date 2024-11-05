@@ -11,5 +11,6 @@ public:
 	static void buildMap();
 	static wchar_t getMap();
 	static bool CheckWithRay(float playerx, float playery, float rads, int distance);
+	static float CheckWithRayAndTraceBack(float playerX, float playerY, float rads, int maxDistance);
 };
 
