@@ -9,8 +9,7 @@
 #include "map.h"
 
 //DEBUG VARS
-float testAngle = 0;
-float testDist = 0;
+float debugDistance;
 
 const float PI = 3.141592653589793238462643383279502884197169399375105820974944;
 
@@ -18,19 +17,20 @@ const int windowHight = 60; //size of the hight of the window
 const int windowWidth = windowHight * 3; //size of the width of the window
 const int windowSize = windowHight * windowWidth; //total size of the window. made to be 12:9
 const int FOV = 90; //feild of view
-const int ViewDistance = 10;
+const int ViewDistance = 50; //max view distance
+const float floorHeight = 3 / 4; //height of the floor (3/4s means the bottom 1/4 of the screen, 1/2 means the bottom half of the screen)
 
 short getWallChar(float distance)
 {
-	if (distance <= 2.5f)
+	if (distance <= ViewDistance/4 /*2.5f*/)
 	{
 		return 0x2588;
 	}
-	else if (distance <= 5)
+	else if (distance <= ViewDistance/2 /*5.0f*/)
 	{
 		return 0x2593;
 	}
-	else if(distance <= 7.5f)
+	else if(distance <= ViewDistance/(4.0f/3.0f) /*7.5f*/)
 	{
 		return 0x2592;
 	}
@@ -109,14 +109,20 @@ int main()
 
 			distance = map::CheckWithRayAndTraceBack(player1.GetPlayerXPos(), player1.GetPlayerYPos(), rayAngleRad, ViewDistance);
 
+			//DEBUG
+			if (player1.GetPlayerRot() == rayAngle)
+			{
+				debugDistance = distance;
+			}
+
 			float rayX = player1.GetPlayerXPos() + (sinf(rayAngleRad) * distance);
 			float rayY = player1.GetPlayerYPos() + (cosf(rayAngleRad) * distance);
 
 			//Write floor to screen
-			for (int j = windowHight * 3/4; j < windowHight; j++)
+			/*for (int j = windowHight * 3 / 4; j < windowHight; j++)
 			{
 				screen[(int)i + (j * windowWidth)] = (j <= windowHight * 3 / 4 * 1/3 ? (short)0x00B7 : j <= windowHight * 3 / 4 * 2 / 3 ? (short)0x25CF: 'O'); //write each character in the ray's column
-			}
+			}*/
 
 			//Write wall to screen
 			blankSurrounds = (distance < ViewDistance ? (distance) * (windowHight/20) : windowHight); //ammount of blank spaces above and below wall
@@ -126,6 +132,7 @@ int main()
 				screen[(int)i + (j * windowWidth)] = (j < blankSurrounds || windowHight - j < blankSurrounds ? getBlankChar(j) : getWallChar(distance)); //write each character in the ray's column
 			}
 
+			//Wall segmentation
 			if ((rayX - (int)rayX <= 0.1 || rayX - (int)rayX >= 0.9) && (rayY - (int)rayY <= 0.1 || rayY - (int)rayY >= 0.9))
 			{
 				for (int j = 0; j < windowHight; j++)
@@ -166,6 +173,15 @@ int main()
 		int i = 0;
 
 		for (char ch : std::to_string(player1.GetPlayerXPos()))
+		{
+			screen[i] = ch;
+			i++;
+		}
+
+		screen[i] = ' ';
+		i++;
+
+		for (char ch : std::to_string(debugDistance))
 		{
 			screen[i] = ch;
 			i++;

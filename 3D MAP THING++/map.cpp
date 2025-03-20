@@ -55,8 +55,8 @@ bool map::CheckWithRay(float playerx, float playery, float rads, int distance)
 
 float map::CheckWithRayAndTraceBack(float playerX, float playerY, float rads, int maxDistance)//Checks if each block is a wall and if it is traces the ray back to the start of the wall to get the distance
 {
-	float prevRayX = -1;
-	float prevRayY = -1;
+	float prevRayX = -1; //will be used to fix the bug of the ray going over blocks. will check for a wall inbetween the previous ray and the current ray posisions.
+	float prevRayY = -1; //same as above
 	float prevDistance = 0;
 
 	for (int i = 0; i < maxDistance; i++)
@@ -77,7 +77,6 @@ float map::CheckWithRayAndTraceBack(float playerX, float playerY, float rads, in
 
 				if (mapArray[(int)((int)rayX + ((size)*(int)rayY))] != '#')
 				{
-					//return sqrt(pow(sinf(rads) * fDistance, 2) + pow(cosf(rads) * fDistance, 2));
 					return prevDistance;
 				}
 			}
