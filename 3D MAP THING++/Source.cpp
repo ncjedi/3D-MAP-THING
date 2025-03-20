@@ -17,7 +17,7 @@ const int windowHight = 60; //size of the hight of the window
 const int windowWidth = windowHight * 3; //size of the width of the window
 const int windowSize = windowHight * windowWidth; //total size of the window. made to be 12:9
 const int FOV = 90; //feild of view
-const int ViewDistance = 20; //max view distance
+const int ViewDistance = 50; //max view distance
 const float floorHeight = 3 / 4; //height of the floor (3/4s means the bottom 1/4 of the screen, 1/2 means the bottom half of the screen)
 
 short getWallChar(float distance)
@@ -132,6 +132,7 @@ int main()
 				screen[(int)i + (j * windowWidth)] = (j < blankSurrounds || windowHight - j < blankSurrounds ? getBlankChar(j) : getWallChar(distance)); //write each character in the ray's column
 			}
 
+			//Wall segmentation
 			if ((rayX - (int)rayX <= 0.1 || rayX - (int)rayX >= 0.9) && (rayY - (int)rayY <= 0.1 || rayY - (int)rayY >= 0.9))
 			{
 				for (int j = 0; j < windowHight; j++)
